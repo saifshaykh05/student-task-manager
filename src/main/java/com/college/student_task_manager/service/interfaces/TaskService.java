@@ -8,28 +8,30 @@ import java.util.List;
 
 public interface TaskService {
 
-    List<TaskResponse> getTasks(String email, Task.Status status);
-
+    // Teacher
     TaskResponse createTask(
             TaskRequest request,
-            String email
+            String teacherEmail
     );
 
-    TaskResponse updateTask(
+    List<TaskResponse> getTeacherTasks(
+            String teacherEmail
+    );
+
+    // Student
+    List<TaskResponse> getStudentTasks(
+            String studentEmail,
+            Task.Status status
+    );
+
+    TaskResponse getStudentTask(
             Long id,
-            TaskRequest request,
-            String email
+            String studentEmail
     );
 
-    TaskResponse updateStatus(
+    TaskResponse updateStudentTaskStatus(
             Long id,
             Task.Status status,
-            String email
+            String studentEmail
     );
-
-    void deleteTask(
-            Long id,
-            String email
-    );
-    TaskResponse getTask(Long id, String email);
 }

@@ -32,8 +32,15 @@ public class Task {
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "assigned_to", nullable = false)
+    private User assignedTo;
+
+    @Column(nullable = false)
+    private LocalDateTime deadline;
 
     public enum Status {
         PENDING,

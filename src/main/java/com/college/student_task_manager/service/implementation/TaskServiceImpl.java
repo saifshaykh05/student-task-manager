@@ -9,6 +9,7 @@ import com.college.student_task_manager.repository.UserRepository;
 import com.college.student_task_manager.service.interfaces.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,18 +21,101 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
 
-    @Override
-    public List<TaskResponse> getTasks(String email, Task.Status status) {
 
-        User user = getUser(email);
+    @Override
+    public TaskResponse createTask(
+            TaskRequest request,
+            String teacherEmail
+    ) {
+
+        User teacher = getUser(teacherEmail);
+
+        if (teacher.getRole() != User.Role.TEACHER) {
+            throw new IllegalArgumentException(
+                    "Only teachers can create tasks"
+            );
+        }
+
+        User student = userRepository.findById(
+                request.assignedToId()
+        ).orElseThrow(() ->
+                new IllegalArgumentException("Student not found"));
+
+        if (student.getRole() != User.Role.STUDENT) {
+            throw new IllegalArgumentException(
+                    "Task can only be assigned to a student"
+            );
+        }
+
+        Task task = Task.builder()
+                .title(request.title().trim())
+                .description(request.description())
+                .status(Task.Status.PENDING)
+                .createdAt(LocalDateTime.now())
+                .createdBy(teacher)
+                .assignedTo(student)
+                .deadline(request.deadline())
+                .build();
+
+        return toResponse(
+                taskRepository.save(task)
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskResponse> getTeacherTasks(
+            String teacherEmail
+    ) {
+
+        User teacher = getUser(teacherEmail);
+
+        if (teacher.getRole() != User.Role.TEACHER) {
+            throw new IllegalArgumentException(
+                    "Only teachers can view teacher tasks"
+            );
+        }
+
+        return taskRepository
+                .findByCreatedByOrderByCreatedAtDesc(teacher)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    // =========================
+    // STUDENT
+    // =========================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskResponse> getStudentTasks(
+            String studentEmail,
+            Task.Status status
+    ) {
+
+        User student = getUser(studentEmail);
+
+        if (student.getRole() != User.Role.STUDENT) {
+            throw new IllegalArgumentException(
+                    "Only students can view assigned tasks"
+            );
+        }
 
         List<Task> tasks;
 
         if (status == null) {
-            tasks = taskRepository.findByUserOrderByCreatedAtDesc(user);
-        } else {
+
             tasks = taskRepository
-                    .findByUserAndStatusOrderByCreatedAtDesc(user, status);
+                    .findByAssignedToOrderByCreatedAtDesc(student);
+
+        } else {
+
+            tasks = taskRepository
+                    .findByAssignedToAndStatusOrderByCreatedAtDesc(
+                            student,
+                            status
+                    );
         }
 
         return tasks.stream()
@@ -40,89 +124,71 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskResponse createTask(
-            TaskRequest request,
-            String email
-    ) {
-
-        User user = getUser(email);
-
-        Task task = Task.builder()
-                .title(request.title().trim())
-                .description(request.description())
-                .status(
-                        request.status() == null
-                                ? Task.Status.PENDING
-                                : request.status()
-                )
-                .createdAt(LocalDateTime.now())
-                .user(user)
-                .build();
-
-        return toResponse(taskRepository.save(task));
-    }
-
-    @Override
-    public TaskResponse updateTask(
+    @Transactional(readOnly = true)
+    public TaskResponse getStudentTask(
             Long id,
-            TaskRequest request,
-            String email
+            String studentEmail
     ) {
 
-        User user = getUser(email);
+        User student = getUser(studentEmail);
 
-        Task task = taskRepository.findByIdAndUser(id, user)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Task not found"));
-
-        task.setTitle(request.title().trim());
-        task.setDescription(request.description());
-
-        if (request.status() != null) {
-            task.setStatus(request.status());
+        if (student.getRole() != User.Role.STUDENT) {
+            throw new IllegalArgumentException(
+                    "Only students can view assigned tasks"
+            );
         }
 
-        return toResponse(taskRepository.save(task));
+        Task task = taskRepository
+                .findByIdAndAssignedTo(id, student)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Task not found"
+                        ));
+
+        return toResponse(task);
     }
 
     @Override
-    public TaskResponse updateStatus(
+    @Transactional
+    public TaskResponse updateStudentTaskStatus(
             Long id,
             Task.Status status,
-            String email
+            String studentEmail
     ) {
 
-        User user = getUser(email);
+        User student = getUser(studentEmail);
 
-        Task task = taskRepository.findByIdAndUser(id, user)
+        if (student.getRole() != User.Role.STUDENT) {
+            throw new IllegalArgumentException(
+                    "Only students can update task status"
+            );
+        }
+
+        Task task = taskRepository
+                .findByIdAndAssignedTo(id, student)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Task not found"));
+                        new IllegalArgumentException(
+                                "Task not found"
+                        ));
 
         task.setStatus(status);
 
-        return toResponse(taskRepository.save(task));
+        return toResponse(
+                taskRepository.save(task)
+        );
     }
 
-    @Override
-    public void deleteTask(
-            Long id,
-            String email
-    ) {
-
-        User user = getUser(email);
-
-        Task task = taskRepository.findByIdAndUser(id, user)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Task not found"));
-
-        taskRepository.delete(task);
-    }
+    // =========================
+    // HELPER METHODS
+    // =========================
 
     private User getUser(String email) {
 
         return userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("User not found"));
+                        new IllegalArgumentException(
+                                "User not found"
+                        ));
     }
 
     private TaskResponse toResponse(Task task) {
@@ -132,18 +198,10 @@ public class TaskServiceImpl implements TaskService {
                 task.getTitle(),
                 task.getDescription(),
                 task.getStatus(),
-                task.getCreatedAt()
+                task.getCreatedAt(),
+                task.getAssignedTo().getId(),
+                task.getAssignedTo().getName(),
+                task.getDeadline()
         );
-    }
-    @Override
-    public TaskResponse getTask(Long id, String email) {
-
-        User user = getUser(email);
-
-        Task task = taskRepository.findByIdAndUser(id, user)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Task not found"));
-
-        return toResponse(task);
     }
 }

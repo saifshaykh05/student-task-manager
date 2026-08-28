@@ -9,12 +9,17 @@ import java.util.Optional;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    List<Task> findByUserOrderByCreatedAtDesc(User user);
+    List<Task> findByCreatedByOrderByCreatedAtDesc(User teacher);
 
-    List<Task> findByUserAndStatusOrderByCreatedAtDesc(
-            User user,
+    List<Task> findByAssignedToOrderByCreatedAtDesc(User student);
+
+    List<Task> findByAssignedToAndStatusOrderByCreatedAtDesc(
+            User student,
             Task.Status status
     );
 
-    Optional<Task> findByIdAndUser(Long id, User user);
+    Optional<Task> findByIdAndAssignedTo(
+            Long id,
+            User student
+    );
 }

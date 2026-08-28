@@ -32,6 +32,10 @@ async function request(endpoint, options = {}) {
 
 export const api = {
 
+  // =========================
+  // AUTH
+  // =========================
+
   register: (userData) =>
     request("/auth/register", {
       method: "POST",
@@ -44,31 +48,41 @@ export const api = {
       body: JSON.stringify(loginData),
     }),
 
-  getTasks: (status = "") =>
-    request(`/tasks${status ? `?status=${status}` : ""}`),
 
-  getTask: (id) =>
-    request(`/tasks/${id}`),
+  // =========================
+  // TEACHER
+  // =========================
 
-  createTask: (taskData) =>
-    request("/tasks", {
+  getStudents: () =>
+    request("/teacher/students"),
+
+  getTeacherTasks: () =>
+    request("/teacher/tasks"),
+
+  createTeacherTask: (taskData) =>
+    request("/teacher/tasks", {
       method: "POST",
       body: JSON.stringify(taskData),
     }),
 
-  updateTask: (id, taskData) =>
-    request(`/tasks/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(taskData),
-    }),
 
-  updateStatus: (id, status) =>
-    request(`/tasks/${id}/status?status=${status}`, {
-      method: "PATCH",
-    }),
+  // =========================
+  // STUDENT
+  // =========================
 
-  deleteTask: (id) =>
-    request(`/tasks/${id}`, {
-      method: "DELETE",
-    }),
+  getStudentTasks: (status = "") =>
+    request(
+      `/student/tasks${status ? `?status=${status}` : ""}`
+    ),
+
+  getStudentTask: (id) =>
+    request(`/student/tasks/${id}`),
+
+  updateStudentTaskStatus: (id, status) =>
+    request(
+      `/student/tasks/${id}/status?status=${status}`,
+      {
+        method: "PATCH",
+      }
+    ),
 };

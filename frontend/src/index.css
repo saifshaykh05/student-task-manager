@@ -21,7 +21,7 @@ button {
 }
 
 /* =========================
-   LOGIN & REGISTER
+   AUTH
    ========================= */
 
 .auth-page {
@@ -63,6 +63,13 @@ button {
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  outline: none;
+}
+
+.auth-card input:focus,
+.auth-card textarea:focus,
+.auth-card select:focus {
+  border-color: #222;
 }
 
 .auth-card button {
@@ -73,6 +80,10 @@ button {
   color: white;
 }
 
+.auth-card button:hover {
+  background: #333;
+}
+
 .link-button {
   margin-top: 15px;
   background: transparent !important;
@@ -81,10 +92,12 @@ button {
 
 .error-message {
   color: #d32f2f !important;
+  margin: 15px 0;
 }
 
 .success-message {
   color: #2e7d32 !important;
+  margin: 15px 0;
 }
 
 /* =========================
@@ -109,8 +122,12 @@ button {
 }
 
 .dashboard-header p {
-  margin: 6px 0 0;
+  margin: 6px 0 2px;
   color: #666;
+}
+
+.dashboard-header small {
+  color: #888;
 }
 
 .logout-button {
@@ -121,14 +138,19 @@ button {
   color: white;
 }
 
+.logout-button:hover {
+  background: #333;
+}
+
 .dashboard-content {
+  width: 100%;
   max-width: 1000px;
   margin: 35px auto;
   padding: 0 20px;
 }
 
 /* =========================
-   CREATE TASK
+   CREATE ASSIGNMENT
    ========================= */
 
 .create-task-section {
@@ -140,42 +162,95 @@ button {
 }
 
 .create-task-section h2 {
-  margin-top: 0;
-  margin-bottom: 25px;
+  margin: 0 0 8px;
 }
 
-.task-form {
+.create-task-section > p {
+  margin: 0 0 25px;
+  color: #666;
+}
+
+/* Teacher form */
+
+.teacher-task-form {
   display: grid;
-  grid-template-columns: 1fr 2fr 160px 130px;
-  gap: 12px;
-  align-items: center;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
-.task-form input,
-.task-form textarea,
-.task-form select {
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
   width: 100%;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  background: white;
+  outline: none;
 }
 
-.task-form textarea {
-  min-height: 46px;
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #222;
+}
+
+.form-group textarea {
+  min-height: 110px;
   resize: vertical;
 }
 
-.task-form button {
+/* Make description full width */
+
+.teacher-task-form .form-group:nth-child(2) {
+  grid-column: 1 / -1;
+}
+
+/* Assign student and deadline */
+
+.teacher-task-form .form-group:nth-child(3),
+.teacher-task-form .form-group:nth-child(4) {
+  min-width: 0;
+}
+
+.create-task-button {
+  grid-column: 1 / -1;
   width: 100%;
-  padding: 12px;
+  padding: 13px 18px;
   border: none;
   border-radius: 6px;
   background: #222;
   color: white;
+  font-weight: 600;
+}
+
+.create-task-button:hover {
+  background: #333;
+}
+
+.create-task-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.no-students {
+  margin: 0;
+  color: #777;
 }
 
 /* =========================
-   TASK LIST
+   TASKS
    ========================= */
 
 .tasks-section {
@@ -190,14 +265,24 @@ button {
 }
 
 .tasks-header h2 {
+  margin: 0 0 6px;
+}
+
+.tasks-header p {
   margin: 0;
+  color: #666;
 }
 
 .tasks-header select {
   padding: 10px 14px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  background: white;
 }
+
+/* =========================
+   TASK LIST
+   ========================= */
 
 .task-list {
   display: flex;
@@ -212,47 +297,94 @@ button {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
 }
 
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
+
 .task-card h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
+  margin: 0;
+  font-size: 20px;
 }
 
-.task-card p {
-  margin: 8px 0;
+.task-description {
+  margin: 15px 0;
+  color: #555;
+  line-height: 1.5;
 }
 
-.task-card button {
-  padding: 9px 15px;
-  margin-right: 8px;
-  margin-top: 12px;
+.task-details {
+  border-top: 1px solid #eee;
+  margin-top: 15px;
+  padding-top: 12px;
+}
+
+.task-details p {
+  margin: 7px 0;
+  color: #555;
+}
+
+.task-details strong {
+  color: #222;
+}
+
+/* =========================
+   STATUS
+   ========================= */
+
+.status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status.completed {
+  background: #d4edda;
+  color: #155724;
+}
+
+/* =========================
+   COMPLETE TASK
+   ========================= */
+
+.complete-task-button {
+  padding: 10px 16px;
+  margin-top: 15px;
   border: none;
   border-radius: 6px;
+  background: #222;
+  color: white;
 }
 
-.task-card form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.complete-task-button:hover {
+  background: #333;
 }
 
-.task-card form input,
-.task-card form textarea,
-.task-card form select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+.complete-task-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-.task-card form textarea {
-  min-height: 80px;
-  resize: vertical;
-}
+/* =========================
+   EMPTY STATE
+   ========================= */
 
 .no-tasks {
   background: white;
   padding: 25px;
   border-radius: 10px;
+  color: #666;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
 /* =========================
@@ -269,17 +401,33 @@ button {
     padding: 0 15px;
   }
 
-  .task-form {
+  .teacher-task-form {
     grid-template-columns: 1fr;
+  }
+
+  .teacher-task-form .form-group:nth-child(2) {
+    grid-column: auto;
+  }
+
+  .create-task-button {
+    grid-column: auto;
   }
 
   .tasks-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 15px;
   }
 
   .tasks-header select {
     width: 100%;
+  }
+
+  .task-card-header {
+    flex-direction: column;
+  }
+
+  .status {
+    align-self: flex-start;
   }
 }

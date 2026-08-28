@@ -54,7 +54,10 @@ public class SecurityConfig {
                                 "/**"
                         )
                         .permitAll()
-
+                        .requestMatchers("/api/teacher/**")
+                        .hasRole("TEACHER")
+                        .requestMatchers("/api/student/**")
+                        .hasRole("STUDENT")
                         .anyRequest()
                         .authenticated()
                 )
@@ -89,7 +92,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(
                 List.of("http://localhost:5173",
                         "http://localhost:5175",
-                        "http://localhost:5178",
+                        "http://localhost:5174",
                         "http://localhost:5181")
         );
 

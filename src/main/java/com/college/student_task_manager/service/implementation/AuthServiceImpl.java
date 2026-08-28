@@ -42,11 +42,12 @@ public class AuthServiceImpl implements AuthService {
                 .name(request.name().trim())
                 .email(email)
                 .password(passwordEncoder.encode(request.password()))
-                .role(User.Role.USER)
+                .role(User.Role.STUDENT)
                 .build();
 
         userRepository.save(user);
     }
+
 
     @Override
     public AuthResponse login(LoginRequest request) {
@@ -75,7 +76,8 @@ public class AuthServiceImpl implements AuthService {
                 token,
                 user.getId(),
                 user.getName(),
-                user.getEmail()
+                user.getEmail(),
+                user.getRole()
         );
     }
 }
