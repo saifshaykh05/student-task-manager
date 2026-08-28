@@ -58,6 +58,8 @@ public class SecurityConfig {
                         .hasRole("TEACHER")
                         .requestMatchers("/api/student/**")
                         .hasRole("STUDENT")
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
                         .anyRequest()
                         .authenticated()
                 )
@@ -93,7 +95,7 @@ public class SecurityConfig {
                 List.of("http://localhost:5173",
                         "http://localhost:5175",
                         "http://localhost:5174",
-                        "http://localhost:5181")
+                        "http://localhost:5177")
         );
 
         configuration.setAllowedMethods(

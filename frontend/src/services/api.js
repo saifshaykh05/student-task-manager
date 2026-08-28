@@ -50,6 +50,23 @@ export const api = {
 
 
   // =========================
+  // ADMIN
+  // =========================
+
+  createTeacher: (teacherData) =>
+    request("/admin/teachers", {
+      method: "POST",
+      body: JSON.stringify(teacherData),
+    }),
+
+  getTeachers: () =>
+    request("/admin/teachers"),
+
+  getAdminStudents: () =>
+    request("/admin/students"),
+
+
+  // =========================
   // TEACHER
   // =========================
 
