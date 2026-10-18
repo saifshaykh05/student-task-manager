@@ -1,0 +1,8 @@
+{
+  "appId": "com.studenttaskmanager.app",
+  "appName": "Student Task Manager",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http"
+  }
+}

@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Android signing keystore
+*.jks
+
+# Generated Android release outputs
+frontend/android/app/release/
+
+
